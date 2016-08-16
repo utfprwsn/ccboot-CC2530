@@ -91,7 +91,7 @@ typedef struct dma_config {
   uint8_t inc_prio;
 } dma_config_t;
 
-void flash_dma_write(uint8_t *buffer, uint16_t length, uint16_t flashadr);
+void flash_dma_write(uint8_t *buffer, uint16_t length, uint32_t flashadr);
 
 #ifdef __cplusplus
 }

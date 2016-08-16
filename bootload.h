@@ -62,8 +62,8 @@ extern "C" {
 #define INUM_RF    16
 #define INUM_WDT   17
 
-#define BOOTLOADER_TIMEOUT  10    /* min value is 1 = 0.1 sec */
-#define XMODEM_TIMEOUT      150   /* minimum value is 1 = 0.1 sec */
+#define BOOTLOADER_TIMEOUT  15    /* min value is 1 = 0.1 sec */
+#define XMODEM_TIMEOUT      600   /* minimum value is 1 = 0.1 sec */
 
 #define XMODEM_SOH          0x01
 #define XMODEM_EOT          0x04

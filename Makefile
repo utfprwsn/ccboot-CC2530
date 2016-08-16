@@ -1,12 +1,12 @@
 # CCBOOT requires 2219 byte of SRAM, we try to put it at the upper XDATA location
 # by assigning --xram-loc and --xram-size closer to 0x2000 (CC253F256 has 8K SRAM)
 SDCCCFLAGS = --model-large --opt-code-size --no-xinit-opt
-ASLINKFLAGS = --model-large --code-loc 0x0000 --xram-loc 0x1400 --xram-size 0x0C00
+ASLINKFLAGS = --model-large --code-loc 0x0000 --xram-loc 0x1400 --xram-size 0x0C00 -L /usr/local/sdcc/share/sdcc/lib/large-stack-auto/
 
 # User program may overwrite any SRAM location of bootloader, except the passkey_index
 # The --xram-size limit is exaclty the location of passkey_index (look at bootload.map)
 EXSDCCCFLAGS = --model-large --opt-code-size --no-xinit-opt
-EXASLINKFLAGS = --model-large --code-loc 0x1000 --xram-loc 0x0000 --xram-size 0x1400
+EXASLINKFLAGS = --model-large --code-loc 0x1000 --xram-loc 0x0000 --xram-size 0x1400 -L /usr/local/sdcc/share/sdcc/lib/large-stack-auto/
 
 %.rel : %.c
 	sdcc $(SDCCCFLAGS) -c -mmcs51 $<

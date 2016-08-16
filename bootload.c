@@ -54,6 +54,7 @@ __code const uint8_t txt_filetype[] = "- user program at 0x1000";
 __code const uint8_t txt_please_send[] = "please send a file (ENTER to cancel)... ";
 __code const uint8_t txt_rebooting[] = "rebooting...";
 __code const uint8_t txt_done[] = "done!";
+__code const uint8_t txt_button[] = "Entered bootloader mode by sensing P2.0 high  ";
 
 /* define the passkey and the length here, please a unique passkey
  * starting with character other than '0-9', 'A-Z', or 'a-z' like '@'
@@ -167,16 +168,19 @@ int16_t nodino_getchar (uint16_t timeout)
 //    return:  -1 timeout detected                                           //
 //---------------------------------------------------------------------------//
 
-int16_t xmodem_wait_for_sender(uint8_t timeout)
+int16_t xmodem_wait_for_sender(uint16_t timeout)
 {
   int16_t serial_data;
 
   /* sender waits for NACK (XMODEM) to start data transmission */
-  do {
+  do{
     serial_data = nodino_getchar(60000);
-  } while (serial_data == ERR_TIMEOUT_DETECTED && timeout--);
+	if(serial_data == ERR_TIMEOUT_DETECTED){
+		putchar(XMODEM_NACK);
+	}
+  }while (serial_data == ERR_TIMEOUT_DETECTED && timeout--);
 
-  putchar(XMODEM_NACK);
+  //putchar(XMODEM_NACK);
   serial_data = nodino_getchar(60000);
 
   return serial_data;
@@ -193,7 +197,7 @@ void flash_packets (void)
 {
   if (flash_page_number >= USER_PROGRAM_PAGE) {
     flash_erase_page(flash_page_number);
-    flash_dma_write(flash_buffer, FLASH_PAGE_SIZE, flash_page_number << 11);
+    flash_dma_write(flash_buffer, FLASH_PAGE_SIZE, (uint32_t)flash_page_number << 11);
   }
   flash_page_number++;
 }
@@ -297,6 +301,26 @@ void bootloader (void)
 }
 
 
+uint8_t check_button()
+{
+	/*configure pin P2.0 as gpio*/
+        /*bit 0: P2.0 function select
+          0: General-purpose I/O*/
+        P2SEL &= ~(0x1);
+
+        /*0 = input*/
+        P2DIR &= ~(0x1);
+
+	/*P2.0 - pullup or pulldown operation*/
+        P2INP &= ~(0x1);
+
+        /*P2 - pulldown*/
+        P2INP |= ((0x1)<<7);
+
+        return (P2 & 0x1);
+}
+
+
 //---------------------------------------------------------------------------//
 //  main program                                                             //
 //---------------------------------------------------------------------------//
@@ -320,12 +344,19 @@ void main (void)
 
   lnprint((uint8_t *) txt_space);
   lnprint((uint8_t *) txt_press_button);
-
-  do {
-    nodino_getchar(60000);
-    putchar('*');
-    timeout--;
-  } while (timeout);
+  if(check_button()==0x1)
+  {
+    lnprint((uint8_t *) txt_button);
+    bootloader();
+  }
+  else
+  {
+    do {
+      nodino_getchar(60000);
+      putchar('*');
+      timeout--;
+    } while (timeout);
+  }
 
   lnprint((uint8_t *) txt_running);
 

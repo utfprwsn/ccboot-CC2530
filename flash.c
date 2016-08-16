@@ -57,7 +57,7 @@ void flash_erase_page(uint8_t page)
   __asm_end;
 }
 
-void flash_dma_write(uint8_t *buffer, uint16_t length, uint16_t flashadr) // length is multiplication of 4
+void flash_dma_write(uint8_t *buffer, uint16_t length, uint32_t flashadr) // length is multiplication of 4
 {
   dma_config_t dmaConfig0;
 
